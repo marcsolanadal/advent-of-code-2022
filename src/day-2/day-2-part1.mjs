@@ -1,7 +1,5 @@
 import { open } from 'node:fs/promises';
 
-
-
 const mappings = {
     "A": "X", // rock
     "B": "Y", // paper
