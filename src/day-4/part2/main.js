@@ -1,4 +1,4 @@
-import { open } from "node:fs/promises";
+const { open } = require("node:fs/promises");
 
 async function readPuzzleInput(cb) {
   const file = await open("./puzzle-input.txt");
@@ -14,31 +14,35 @@ async function readPuzzleInput(cb) {
   return overlapCount;
 }
 
-function checkOverlappingTasks(elfPair) {
-  const [elf1, elf2] = elfPair.split(",");
-  let [a, b] = elf1.split("-");
-  let [x, y] = elf2.split("-");
+// readPuzzleInput(solve).then((solution) => {
+//   console.log(`total score: ${solution}`);
+// });
 
-  a = Number.parseInt(a, 10);
-  b = Number.parseInt(b, 10);
-  x = Number.parseInt(x, 10);
-  y = Number.parseInt(y, 10);
+function parse(elfPairString) {
+  const ranges = elfPairString
+    .split(",")
+    .map((range) => range.split("-").map((num) => Number(num)));
 
+  const [[a, b], [x, y]] = ranges;
   const range1 = [...Array(b - a + 1).keys()].map((n) => n + a);
   const range2 = [...Array(y - x + 1).keys()].map((n) => n + x);
 
-  // Find overlap between ranges
-  let overlaps = false;
-  for (let i = 0; i < range1.length; i++) {
-    if (range2.includes(range1[i])) {
-      overlaps = true;
-      break;
+  return [range1, range2];
+}
+
+function checkArrayOverlapping(arr1, arr2) {
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr2.includes(arr1[i])) {
+      return true;
     }
   }
 
-  return overlaps;
+  return false;
 }
 
-readPuzzleInput(checkOverlappingTasks).then((solution) => {
-  console.log(`total score: ${solution}`);
-});
+function solve(elfPair) {
+  const [range1, range2] = parse(elfPair);
+  return checkArrayOverlapping(range1, range2);
+}
+
+exports.parse = parse;
