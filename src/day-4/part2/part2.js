@@ -1,23 +1,3 @@
-const { open } = require("node:fs/promises");
-
-async function readPuzzleInput(cb) {
-  const file = await open("./puzzle-input.txt");
-  let overlapCount = 0;
-
-  for await (const line of file.readLines()) {
-    const overlaps = cb(line);
-    if (overlaps) {
-      overlapCount += 1;
-    }
-  }
-
-  return overlapCount;
-}
-
-// readPuzzleInput(solve).then((solution) => {
-//   console.log(`total score: ${solution}`);
-// });
-
 function parse(elfPairString) {
   const ranges = elfPairString
     .split(",")
@@ -45,4 +25,8 @@ function solve(elfPair) {
   return checkArrayOverlapping(range1, range2);
 }
 
-exports.parse = parse;
+module.exports = {
+  parse,
+  checkArrayOverlapping,
+  solve,
+};

@@ -1,4 +1,4 @@
-const { parse } = require("./main.js");
+const { parse } = require("./part2.js");
 
 test("parses the elf task string to a range array", () => {
   expect(parse("1-3,4-6")).toEqual([
