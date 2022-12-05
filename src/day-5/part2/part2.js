@@ -35,6 +35,7 @@ async function readPuzzleInput() {
   return getSolution(stacks);
 }
 
+// 1 5 9 13 17 21
 function initStacks(line) {
   const stackNum = Math.floor(line.length / 4) + 1;
   let stacks = [];
@@ -68,7 +69,7 @@ function move(moveStr, stacks) {
     nextStacks[fromStack].length - itemsToMove,
     itemsToMove
   );
-  nextStacks[toStack] = [...nextStacks[toStack], ...items.reverse()];
+  nextStacks[toStack] = [...nextStacks[toStack], ...items];
 
   return nextStacks;
 }
