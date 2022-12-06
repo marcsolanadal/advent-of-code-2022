@@ -1,17 +1,49 @@
 const fs = require("fs");
 
-function parse() {
-  const data = fs.readFileSync("./sample-input", "utf-8");
+function signalDetectionFactory(windowWidth) {
+  return (signal) => transposeSignalWindow(signal, windowWidth);
+}
 
-  return data;
+function transposeSignalWindow(signal, windowWidth, index = 0) {
+  if (index === signal.length - windowWidth + 1) {
+    return 0;
+  }
+
+  let signalWindow = [];
+  for (let i = 0; i < windowWidth; i++) {
+    signalWindow = [...signalWindow, signal[index + i]];
+  }
+
+  if (checkRepeatedChar(signalWindow) === true) {
+    return transposeSignalWindow(signal, windowWidth, index + 1);
+  }
+
+  return index + windowWidth;
+}
+
+function checkRepeatedChar(arr) {
+  let repeated = false;
+  for (let n = 0; n < arr.length; n++) {
+    for (let m = 0; m < arr.length; m++) {
+      if (arr[n] === arr[m] && m !== n) {
+        repeated = true;
+        break;
+      }
+    }
+  }
+  return repeated;
 }
 
 function main() {
-  const output = parse();
+  const signal = fs.readFileSync("./sample-input", "utf-8").split("");
 
-  console.log(output);
+  const part1 = signalDetectionFactory(4);
+  const part2 = signalDetectionFactory(12);
+
+  console.log(`part1 solution: ${part1(signal)}`);
+  console.log(`part1 solution: ${part2(signal)}`);
 }
 
-// main();
+main();
 
-module.exports = { main };
+module.exports = { signalDetectionFactory, checkRepeatedChar };
