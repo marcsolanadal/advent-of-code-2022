@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function signalDetectionFactory(windowWidth) {
+function solve(windowWidth) {
   return (signal) => transposeSignalWindow(signal, windowWidth);
 }
 
@@ -37,13 +37,11 @@ function checkRepeatedChar(arr) {
 function main() {
   const signal = fs.readFileSync("./sample-input", "utf-8").split("");
 
-  const part1 = signalDetectionFactory(4);
-  const part2 = signalDetectionFactory(12);
+  const part1 = solve(4);
+  const part2 = solve(12);
 
   console.log(`part1 solution: ${part1(signal)}`);
-  console.log(`part1 solution: ${part2(signal)}`);
+  console.log(`part2 solution: ${part2(signal)}`);
 }
 
-main();
-
-module.exports = { signalDetectionFactory, checkRepeatedChar };
+module.exports = { originalSolve: solve, checkRepeatedChar };
