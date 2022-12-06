@@ -35,7 +35,7 @@ function checkRepeatedChar(arr) {
 }
 
 function main() {
-  const signal = fs.readFileSync("./sample-input", "utf-8").split("");
+  const signal = fs.readFileSync("./src/day-6/sample-input", "utf-8").split("");
 
   const part1 = solve(4);
   const part2 = solve(12);
@@ -43,5 +43,7 @@ function main() {
   console.log(`part1 solution: ${part1(signal)}`);
   console.log(`part2 solution: ${part2(signal)}`);
 }
+
+main();
 
 module.exports = { originalSolve: solve, checkRepeatedChar };
