@@ -38,54 +38,68 @@ function changeDirectory(
 }
 */
 
-const commandToFilesystem = (
-  commands: any,
-  path: Array<string> = [],
-  tree: any = {}
-): any => {
-  if (commands.length === 0) return tree;
+// const commandToFilesystem = (
+//   commands: any,
+//   path: Array<string> = [],
+//   tree: any = {}
+// ): any => {
+//   // if (commands.length === 0) return tree;
 
-  let [currentDir, ...items] = commands[0];
-  currentDir = currentDir.split(" ")[1];
+//   for (command of commands) {
+//     let [currentDir, ...items] = command;
+//     currentDir = currentDir.split(" ")[1];
 
-  if (currentDir !== "..") {
-    path = [...path, currentDir];
-  } else {
-    path = path.slice(0, path.length - 1);
-  }
+//     if (currentDir !== "..") {
+//       path = [...path, currentDir];
+//     } else {
+//       path = path.slice(0, path.length - 1);
+//     }
 
-  console.log(`current path: ${path}`);
+//     console.log(`current path: ${path}, ${items}`);
 
-  let directory: Directory = {
-    name: currentDir,
-    contents: [],
-  };
+//     const test = items
+//       .filter((item: string) => !item.includes("dir"))
+//       .map((item: string) => item.split(" ")[0]);
 
-  for (let dir in path) {
-    // dinamically create object
-  }
+//     console.log(`items: ${test}`);
 
-  commandToFilesystem(commands.slice(1), path, tree);
+//     const nextTree = {
+//       ...tree,
+//       [path.join(",")]: test,
+//     };
+//   }
 
-  // for (let item of items) {
-  //   const [arg, name] = item.split(" ");
-  //   if (arg === "dir") {
-  //     directory.contents.push(commandToFilesystem(nextCommands, path, tree));
-  //   } else {
-  //     directory.contents.push({
-  //       name,
-  //       size: Number.parseInt(arg, 10),
-  //     } as File);
-  //   }
-  // }
+//   // let directory: Directory = {
+//   //   name: currentDir,
+//   //   contents: [],
+//   // };
 
-  return directory;
-};
+//   // for (let dir in path) {
+//   //   // dinamically create object
+//   // }
+
+//   // return commandToFilesystem(commands.slice(1), path, nextTree);
+
+//   // for (let item of items) {
+//   //   const [arg, name] = item.split(" ");
+//   //   if (arg === "dir") {
+//   //     directory.contents.push(commandToFilesystem(nextCommands, path, tree));
+//   //   } else {
+//   //     directory.contents.push({
+//   //       name,
+//   //       size: Number.parseInt(arg, 10),
+//   //     } as File);
+//   //   }
+//   // }
+
+//   // return directory;
+// };
 
 function parse(stdout: any): void {
   const commands = stdout
     .split("\n")
     .filter((cmd: string) => !cmd.includes("$ ls"))
+    .filter((cmd: string) => !cmd.includes("cd .."))
     .join("\n")
     .split("$")
     .filter((cmd: string) => cmd !== "")
@@ -93,14 +107,31 @@ function parse(stdout: any): void {
       return cmd.trim().split("\n");
     });
 
-  console.log(commands);
+  let path: Array<string> = [];
+  let tree: any = {};
 
-  const tree: any = commandToFilesystem(commands);
+  for (let command of commands) {
+    let [currentDir, ...items] = command;
+    currentDir = currentDir.split(" ")[1];
+
+    if (currentDir !== "..") {
+      path = [...path, currentDir];
+    } else {
+      path = path.slice(0, path.length - 1);
+    }
+
+    tree = {
+      ...tree,
+      [path.join(",")]: items
+        .filter((item: string) => !item.includes("dir"))
+        .map((item: string) => item.split(" ")[0]),
+    };
+  }
 
   return tree;
 }
 
-const tree = parse(fs.readFileSync("./sample-input-example", "utf-8"));
-console.log(tree);
+const stdout = parse(fs.readFileSync("./sample-input-example", "utf-8"));
+console.log(stdout);
 
 module.exports = { parse, changeDirectory };
