@@ -1,16 +1,5 @@
 const fs = require("fs");
 
-interface Directory {
-  readonly name: string;
-  contents: Array<Directory | File>;
-  size?: number;
-}
-
-interface File {
-  readonly name: string;
-  readonly size: number;
-}
-
 function parse(stdout: any): void {
   const commands = stdout
     .split("\n")
@@ -21,6 +10,8 @@ function parse(stdout: any): void {
     .map((cmd: string) => {
       return cmd.trim().split("\n");
     });
+
+  console.log(commands);
 
   let path: Array<string> = [];
   let tree: any = {};
@@ -49,7 +40,25 @@ function parse(stdout: any): void {
   return tree;
 }
 
-const stdout = parse(fs.readFileSync("./sample-input-example", "utf-8"));
-console.log(stdout);
+function solve(parsedTree: any, sizeThereshold: number): number {
+  let totalSize = 0;
+  for (let folder of Object.values(parsedTree)) {
+    for (let file of Object.values(folder as Object)) {
+      file = Number.parseInt(file, 10);
+      if (file > sizeThereshold) {
+        console.log(file);
+        totalSize += file;
+      }
+    }
+  }
+
+  return totalSize;
+}
+
+const stdout = fs.readFileSync("./sample-input-example", "utf-8");
+const parsedTree = parse(stdout);
+const foo = solve(parsedTree, 100000);
+
+console.log(foo);
 
 module.exports = { parse };
