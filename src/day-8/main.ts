@@ -5,8 +5,7 @@ export function parse(input: string): Array<Array<number>> {
 }
 
 export function solve(forest: Array<Array<number>>): number {
-  let visibleTreeCount: number =
-    forest.length + (forest[0].length - 1) * 2 + forest.length - 2;
+  let visibleTreeCount: number = 2 * forest.length + 2 * forest[0].length - 4;
   for (let x = 1; x < forest.length - 1; x++) {
     for (let y = 1; y < forest[0].length - 1; y++) {
       if (isOrthogonallyVisible(x, y, forest)) {
@@ -52,7 +51,7 @@ export function isOrthogonallyVisible(
 
   // South
   for (let n = y + 1; n < forest[0].length; n++) {
-    if (forest[y][n] >= forest[x][y]) {
+    if (forest[n][y] >= forest[x][y]) {
       visibility.south = false;
     }
   }
