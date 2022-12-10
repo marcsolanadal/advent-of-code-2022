@@ -1,122 +1,95 @@
-interface Instruction {
-  direction: string;
-  distance: number;
-}
+import { Point, Instruction, World, Direction } from "./main.types";
 
-interface Position {
-  x: number;
-  y: number;
-}
-
-let head: Position = { x: 0, y: 0 };
-let tail: Position = { x: 0, y: 0 };
+let head: Point = [0, 0];
+let tail: Point = [0, 0];
 
 export function parse(input: string): Array<Instruction> {
   return input.split("\n").map((move) => {
-    const [direction, value] = move.split(" ");
-    return {
-      direction,
-      distance: Number.parseInt(value, 10),
-    };
+    const [direction, distance] = move.split(" ");
+    return [direction, Number(distance)] as [Direction, number];
   });
 }
 
-export function expandWorld(
-  world: number[][],
-  instruction: Instruction,
-  head: Position
-): number[][] {
+function verticalMove(
+  world: World,
+  distance: number,
+  head: Point,
+  appendFn: any
+) {
   let nextWorld = world;
-  switch (instruction.direction) {
-    case "R":
-      const appendRight = Array(instruction.distance).fill(0);
-      nextWorld = world.map((row) => {
-        return [...row, ...appendRight] as number[];
-      });
-      break;
+  const nextHeadY = head[1] + distance;
 
-    case "L":
-      const appendLeft = Array(instruction.distance).fill(0);
-      nextWorld = world.map((row) => {
-        return [...appendLeft, ...row] as number[];
-      });
-      break;
-
-    case "U":
-      const appendUp = Array(world[0].length).fill(0);
-      for (let n = 0; n < instruction.distance; n++) {
-        nextWorld = [appendUp, ...nextWorld];
-      }
-      break;
-
-    case "D":
-      const appendDown = Array(world[0].length).fill(0);
-      for (let n = 0; n < instruction.distance; n++) {
-        nextWorld = [...nextWorld, appendDown];
-      }
-      break;
-
-    default:
-      console.error("direction does not exist");
-      break;
+  if (nextHeadY >= world.length) {
+    const toExpand = Array(world[0].length).fill(0);
+    for (let n = 0; n < distance; n++) {
+      nextWorld = appendFn(nextWorld, toExpand);
+    }
   }
 
   return nextWorld;
 }
 
-export function move(
-  world: number[][] = [[1]],
-  instruction: Instruction,
-  head: Position,
-  tail: Position
-): number[][] {
-  expandWorld(world, instruction, head);
+function horizontalMove(
+  world: World,
+  distance: number,
+  head: Point,
+  appendFn: any
+) {
+  let nextWorld = world;
+  const nextHeadX = head[0] + distance;
 
-  if (instruction.direction === "R") {
-    // moves head to position
-    head.x += instruction.distance;
-
-    console.log(`world init: ${world}`);
-
-    // tail follows
-    for (let n = 0; n < instruction.distance; n++) {
-      if (Math.abs(head.x - tail.x) >= 1) {
-        world[tail.y][n] = 1;
-        // world[tail.x] = [...world[tail.x], 1];
-
-        tail.x += 1;
-        continue;
-      }
-    }
-
-    console.log(`world: ${world}`);
+  if (nextHeadX >= world[0].length) {
+    const toExpand = Array(nextHeadX - world[0].length + 1).fill(0);
+    nextWorld = world.map((row) => appendFn(row, toExpand));
   }
 
-  // for (let n = 0; n < instruction.distance; n++) {
-  //   if (Math.abs(head.x - tail.x) > 1) {
-  //     // last value added to the line
-  //     // const valueToAdd = n === instruction.distance - 1 ? 0 : 1;
+  return nextWorld;
+}
 
-  //     // world[head.x].push(1);
-  //     world[head.x] = [...world[head.x], 1];
-  //     tail.x += 1;
-  //     continue;
-  //   }
+function appendRight(world: World, appendArr: number[]) {
+  console.log(appendArr);
+  return [...world, appendArr];
+}
 
-  //   console.log(world[head.x]);
+export function move(
+  world: World,
+  instruction: Instruction,
+  head: Point,
+  tail: Point
+): World {
+  let nextWorld = world;
+  const [direction, distance] = instruction;
 
-  //   // world[head.x].push(0);
-  //   world[head.x] = [...world[head.x], 0];
-  //   head.x = n;
-  // }
+  if (direction === "R") {
+    nextWorld = horizontalMove(world, distance, head, appendRight);
+  }
 
-  // switch (direction) {
-  //   case "R":
+  if (direction === "L") {
+    nextWorld = horizontalMove(
+      world,
+      distance,
+      head,
+      (nextWorld: any, toExpand: any) => [toExpand, ...nextWorld]
+    );
+  }
 
-  //     break;
-  //   default:
-  //     throw Error(`Direction ${direction} does not exist`);
-  // }
+  if (direction === "U") {
+    nextWorld = verticalMove(
+      world,
+      distance,
+      head,
+      (nextWorld: any, toExpand: any) => [toExpand, ...nextWorld]
+    );
+  }
 
-  return world;
+  if (direction === "D") {
+    nextWorld = verticalMove(
+      world,
+      distance,
+      head,
+      (nextWorld: any, toExpand: any) => [...nextWorld, toExpand]
+    );
+  }
+
+  return nextWorld;
 }
